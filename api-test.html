@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Test</h1>
+    <button onclick="testHealth()">Test Health Endpoint</button>
+    <button onclick="testStudentRegistration()">Test Student Registration</button>
+    <div id="result"></div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3003/api';
+        
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/../../health`);
+                const data = await response.json();
+                document.getElementById('result').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testStudentRegistration() {
+            try {
+                const timestamp = Date.now();
+                const testStudent = {
+                    email: `htmltest${timestamp}@example.com`,
+                    password: 'Testpass123',
+                    name: 'HTML Test Student',
+                    collegeId: 'STU123456',
+                    course: 'Computer Science'
+                };
+                
+                const response = await fetch(`${API_BASE_URL}/register/student`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testStudent)
+                });
+                
+                const data = await response.json();
+                document.getElementById('result').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

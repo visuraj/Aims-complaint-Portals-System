@@ -1,0 +1,28 @@
+// Firestore Security Rules for Complaint Portal
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection - users can read/write their own data, admins can read all
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Complaints collection - students can read/write their own, professors assigned ones, admins all
+    match /complaints/{complaintId} {
+      allow read, write: if request.auth != null && 
+        (resource.data.studentId == request.auth.uid || 
+         resource.data.assignedProfessorId == request.auth.uid ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+      allow create: if request.auth != null;
+    }
+    
+    // Notifications collection (if needed)
+    match /notifications/{notificationId} {
+      allow read, write: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null;
+    }
+  }
+}
